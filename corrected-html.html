@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animação de Contração Muscular</title>
+    <style>
+        /* Estilos gerais */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Estilos da animação */
+        .animation-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .animation-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        
+        .animation-content {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+        
+        @media (min-width: 768px) {
+            .animation-content {
+                flex-direction: row;
+            }
+        }
+        
+        .animation-visual {
+            flex: 1;
+        }
+        
+        .animation-info {
+            flex: 1;
+            background-color: #eff6ff;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .animation-stage {
+            background-color: #f3f4f6;
+            border-radius: 8px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        
+        .animation-steps {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .step-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e5e7eb;
+            color: #4b5563;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .step-btn.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .step-btn:hover:not(.active) {
+            background-color: #d1d5db;
+        }
+        
+        .info-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 16px;
+        }
+        
+        .step-info {
+            margin-bottom: 24px;
+        }
+        
+        .step-info-title {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 8px;
+        }
+        
+        .additional-info {
+            margin-top: 24px;
+        }
+        
+        .additional-info-title {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 8px;
+        }
+        
+        .additional-info p {
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="animation-container">
+            <h2 class="animation-title">Animação: Contração Muscular</h2>
+            
+            <div class="animation-content">
+                <div class="animation-visual">
+                    <div class="animation-stage" id="animation-stage">
+                        <!-- SVG será inserido aqui via JavaScript -->
+                    </div>
+                    
+                    <div class="animation-steps" id="step-controls">
+                        <button class="step-btn active" data-step="0">0</button>
+                        <button class="step-btn" data-step="1">1</button>
+                        <button class="step-btn" data-step="2">2</button>
+                        <button class="step-btn" data-step="3">3</button>
+                        <button class="step-btn" data-step="4">4</button>
+                    </div>
+                </div>
+                
+                <div class="animation-info">
+                    <h3 class="info-title">Processo de Contração Muscular</h3>
+                    
+                    <div class="step-info" id="step-info">
+                        <h4 class="step-info-title">Etapa Atual:</h4>
+                        <p id="step-description">Estado de repouso: O músculo está relaxado, com os filamentos de actina e miosina em posição de repouso.</p>
+                    </div>
+                    
+                    <div class="additional-info">
+                        <h4 class="additional-info-title">Informações Adicionais:</h4>
+                        <div id="additional-info-text">
+                            <p>A contração muscular é um processo complexo que envolve a interação entre proteínas contráteis, íons cálcio e ATP como fonte de energia.</p>
+                            <p>No estado de repouso, os filamentos de actina e miosina estão posicionados paralelamente, sem formar pontes cruzadas.</p>
+                            <p>A troponina e a tropomiosina bloqueiam os sítios de ligação na actina, impedindo a ligação com a miosina.</p>
+                            <p>O ATP está ligado às cabeças de miosina, mas não há contração neste momento porque não há interação entre actina e miosina.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos DOM
+        const animationStage = document.getElementById('animation-stage');
+        const stepControls = document.getElementById('step-controls');
+        const stepDescription = document.getElementById('step-description');
+        const additionalInfoText = document.getElementById('additional-info-text');
+        
+        // Variáveis de estado
+        let currentStep = 0;
+        
+        // SVGs para cada etapa da animação
+        const stepSVGs = [
+            // Etapa 0: Repouso
+            `<svg width="100%" height="100%" viewBox="0 0 400 100">
+                <rect x="50" y="30" width="300" height="40" fill="#f8d7da" stroke="#721c24" stroke-width="1" />
+                <line x1="80" y1="30" x2="80" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="120" y1="30" x2="120" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="160" y1="30" x2="160" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="200" y1="30" x2="200" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="240" y1="30" x2="240" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="280" y1="30" x2="280" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="320" y1="30" x2="320" y2="70" stroke="#721c24" stroke-width="2" />
+                
+                <rect x="100" y="40" width="200" height="20" fill="#d1e7dd" stroke="#0f5132" stroke-width="1" />
+                <line x1="130" y1="40" x2="130" y2="60" stroke="#0f5132" stroke-width="2" />
+                <line x1="170" y1="40" x2="170" y2="60" stroke="#0f5132" stroke-width="2" />
+                <line x1="210" y1="40" x2="210" y2="60" stroke="#0f5132" stroke-width="2" />
+                <line x1="250" y1="40" x2="250" y2="60" stroke="#0f5132" stroke-width="2" />
+                <line x1="290" y1="40" x2="290" y2="60" stroke="#0f5132" stroke-width="2" />
+                
+                <text x="200" y="90" text-anchor="middle" fill="#333" font-size="12">Músculo em repouso</text>
+            </svg>`,
+            
+            // Etapa 1: Estímulo nervoso
+            `<svg width="100%" height="100%" viewBox="0 0 400 100">
+                <rect x="50" y="30" width="300" height="40" fill="#f8d7da" stroke="#721c24" stroke-width="1" />
+                <line x1="80" y1="30" x2="80" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="120" y1="30" x2="120" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="160" y1="30" x2="160" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="200" y1="30" x2="200" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="240" y1="30" x2="240" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="280" y1="30" x2="280" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="320" y1="30" x2="320" y2="70" stroke="#721c24" stroke-width="2" />
+                
+                <rect x="100" y="40" width="200" height="20" fill="#d1e7dd" stroke="#0f5132" stroke-width="1" />
+                <line x1="130" y1="40" x2="130" y2="60" stroke="#0f5132" stroke-width="2" />
+                <line x1="170" y1="40" x2="170" y2="60" stroke="#0f5132" stroke-width="2" />
+                <line x1="210" y1="40" x2="210" y2="60" stroke="#0f5132" stroke-width="2" />
+                <line x1="250" y1="40" x2="250" y2="60" stroke="#0f5132" stroke-width="2" />
+                <line x1="290" y1="40" x2="290" y2="60" stroke="#0f5132" stroke-width="2" />
+                
+                <circle cx="30" cy="50" r="10" fill="#cce5ff" stroke="#004085" stroke-width="1">
+                    <animate attributeName="cx" from="30" to="80" dur="1s" repeatCount="indefinite" />
+                </circle>
+                
+                <text x="200" y="90" text-anchor="middle" fill="#333" font-size="12">Estímulo nervoso chegando</text>
+            </svg>`,
+            
+            // Etapa 2: Liberação de cálcio
+            `<svg width="100%" height="100%" viewBox="0 0 400 100">
+                <rect x="50" y="30" width="300" height="40" fill="#f8d7da" stroke="#721c24" stroke-width="1" />
+                <line x1="80" y1="30" x2="80" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="120" y1="30" x2="120" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="160" y1="30" x2="160" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="200" y1="30" x2="200" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="240" y1="30" x2="240" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="280" y1="30" x2="280" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="320" y1="30" x2="320" y2="70" stroke="#721c24" stroke-width="2" />
+                
+                <rect x="100" y="40" width="200" height="20" fill="#d1e7dd" stroke="#0f5132" stroke-width="1" />
+                <line x1="130" y1="40" x2="130" y2="60" stroke="#0f5132" stroke-width="2" />
+                <line x1="170" y1="40" x2="170" y2="60" stroke="#0f5132" stroke-width="2" />
+                <line x1="210" y1="40" x2="210" y2="60" stroke="#0f5132" stroke-width="2" />
+                <line x1="250" y1="40" x2="250" y2="60" stroke="#0f5132" stroke-width="2" />
+                <line x1="290" y1="40" x2="290" y2="60" stroke="#0f5132" stroke-width="2" />
+                
+                <circle cx="130" cy="30" r="3" fill="#ffc107">
+                    <animate attributeName="cy" from="20" to="40" dur="0.5s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="170" cy="25" r="3" fill="#ffc107">
+                    <animate attributeName="cy" from="15" to="40" dur="0.7s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="210" cy="28" r="3" fill="#ffc107">
+                    <animate attributeName="cy" from="18" to="40" dur="0.6s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="250" cy="22" r="3" fill="#ffc107">
+                    <animate attributeName="cy" from="12" to="40" dur="0.8s" repeatCount="indefinite" />
+                </circle>
+                
+                <text x="200" y="90" text-anchor="middle" fill="#333" font-size="12">Liberação de íons de cálcio</text>
+            </svg>`,
+            
+            // Etapa 3: Formação de pontes cruzadas
+            `<svg width="100%" height="100%" viewBox="0 0 400 100">
+                <rect x="50" y="30" width="300" height="40" fill="#f8d7da" stroke="#721c24" stroke-width="1" />
+                <line x1="80" y1="30" x2="80" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="120" y1="30" x2="120" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="160" y1="30" x2="160" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="200" y1="30" x2="200" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="240" y1="30" x2="240" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="280" y1="30" x2="280" y2="70" stroke="#721c24" stroke-width="2" />
+                <line x1="320" y1="30" x2="320" y2="70" stroke="#721c24" stroke-width="2" />
+                
+                <rect x="100" y="40" width="200" height="20" fill="#d1e7dd" stroke="#0f5132" stroke-width="1" />
+                <line x1="130" y1="40" x2="130" y2="60" stroke="#0f5132" stroke-width="2" />
+                <line x1="170" y1="40" x2="170" y2="60" stroke="#0f5132" stroke-width="2" />
+                <line x1="210" y1="40" x2="210" y2="60" stroke="#0f5132" stroke-width="2" />
+                <line x1="250" y1="40" x2="250" y2="60" stroke="#0f5132" stroke-width="2" />
+                <line x1="290" y1="40" x2="290" y2="60" stroke="#0f5132" stroke-width="2" />
+                
+                <line x1="130" y1="50" x2="150" y2="50" stroke="#6c757d" stroke-width="2">
+                    <animate attributeName="x2" from="150" to="140" dur="0.5s" fill="freeze" />
+                </line>
+                <line x1="170" y1="50" x2="190" y2="50" stroke="#6c757d" stroke-width="2">
+                    <animate attributeName="x2" from="190" to="180" dur="0.5s" fill="freeze" />
+                </line>
+                <line x1="210" y1="50" x2="230" y2="50" stroke="#6c757d" stroke-width="2">
+                    <animate attributeName="x2" from="230" to="220" dur="0.5s" fill="freeze" />
+                </line>
+                <line x1="250" y1="50" x2="270" y2="50" stroke="#6c757d" stroke-width="2">
+                    <animate attributeName="x2" from="270" to="260" dur="0.5s" fill="freeze" />
+                </line>
+                
+                <text x="200" y="90" text-anchor="middle" fill="#333" font-size="12">Formação de pontes cruzadas</text>
+            </svg>`,
+            
+            // Etapa 4: Contração
+            `<svg width="100%" height="100%" viewBox="0 0 400 100">
+                <rect x="70" y="30" width="260" height="40" fill="#f8d7da" stroke="#721c24" stroke-width="1">
+                    <animate attributeName="width" from="300" to="260" dur="1s" fill="freeze" />
+                    <animate attributeName="x" from="50" to="70" dur="1s" fill="freeze" />
+                </rect>
+                <line x1="100" y1="30" x2="100" y2="70" stroke="#721c24" stroke-width="2">
+                    <animate attributeName="x1" from="80" to="100" dur="1s" fill="freeze" />
+                    <animate attributeName="x2" from="80" to="100" dur="1s" fill="freeze" />
+                </line>
+                <line x1="140" y1="30" x2="140" y2="70" stroke="#721c24" stroke-width="2">
+                    <animate attributeName="x1" from="120" to="140" dur="1s" fill="freeze" />
+                    <animate attributeName="x2" from="120" to="140" dur="1s" fill="freeze" />
+                </line>
+                <line x1="180" y1="30" x2="180" y2="70" stroke="#721c24" stroke-width="2">
+                    <animate attributeName="x1" from="160" to="180" dur="1s" fill="freeze" />
+                    <animate attributeName="x2" from="160" to="180" dur="1s" fill="freeze" />
+                </line>
+                <line x1="220" y1="30" x2="220" y2="70" stroke="#721c24" stroke-width="2">
+                    <animate attributeName="x1" from="200" to="220" dur="1s" fill="freeze" />
+                    <animate attributeName="x2" from="200" to="220" dur="1s" fill="freeze" />
+                </line>
+                <line x1="260" y1="30" x2="260" y2="70" stroke="#721c24" stroke-width="2">
+                    <animate attributeName="x1" from="240" to="260" dur="1s" fill="freeze" />
+                    <animate attributeName="x2" from="240" to="260" dur="1s" fill="freeze" />
+                </line>
+                <line x1="300" y1="30" x2="300" y2="70" stroke="#721c24" stroke-width="2">
+                    <animate attributeName="x1" from="280" to="300" dur="1s" fill="freeze" />
+                    <animate attributeName="x2" from="280" to="300" dur="1s" fill="freeze" />
+                </line>
+                
+                <rect x="120" y="40" width="160" height="20" fill="#d1e7dd" stroke="#0f5132" stroke-width="1">
+                    <animate attributeName="width" from="200" to="160" dur="1s" fill="freeze" />
+                    <animate attributeName="x" from="100" to="120" dur="1s" fill="freeze" />
+                </rect>
+                <line x1="150" y1="40" x2="150" y2="60" stroke="#0f5132" stroke-width="2">
+                    <animate attributeName="x1" from="130" to="150" dur="1s" fill="freeze" />
+                    <animate attributeName="x2" from="130" to="150" dur="1s" fill="freeze" />
+                </line>
+                <line x1="190" y1="40" x2="190" y2="60" stroke="#0f5132" stroke-width="2">
+                    <animate attributeName="x1" from="170" to="190" dur="1s" fill="freeze" />
+                    <animate attributeName="x2" from="170" to="190" dur="1s" fill="freeze" />
+                </line>
+                <line x1="230" y1="40" x2="230" y2="60" stroke="#0f5132" stroke-width="2">
+                    <animate attributeName="x1" from="210" to="230" dur="1s" fill="freeze" />
+                    <animate attributeName="x2" from="210" to="230" dur="1s" fill="freeze" />
+                </line>
+                <line x1="270" y1="40" x2="270" y2="60" stroke="#0f5132" stroke-width="2">
+                    <animate attributeName="x1" from="250" to="270" dur="1s" fill="freeze" />
+                    <animate attributeName="x2" from="250" to="270" dur="1s" fill="freeze" />
+                </line>
+                
+                <text x="200" y="90" text-anchor="middle" fill="#333" font-size="12">Contração muscular</text>
+            </svg>`
+        ];
+        
+        // Descrições para cada etapa
+        const stepDescriptions = [
+            "Estado de repouso: O músculo está relaxado, com os filamentos de actina e miosina em posição de repouso.",
+            "Estímulo nervoso: Um impulso nervoso chega à junção neuromuscular, liberando acetilcolina.",
+            "Liberação de cálcio: O retículo sarcoplasmático libera íons de cálcio que se ligam à troponina.",
+            "Formação de pontes cruzadas: As cabeças de miosina ligam-se aos sítios ativos da actina.",
+            "Contração: As cabeças de miosina puxam os filamentos de actina, causando o encurtamento do sarcômero."
+        ];
+
+        // Informações adicionais para cada etapa
+        const additionalInfos = [
+            // Etapa 0: Repouso
+            `<p>A contração muscular é um processo complexo que envolve a interação entre proteínas contráteis, íons cálcio e ATP como fonte de energia.</p>
+            <p>No estado de repouso, os filamentos de actina e miosina estão posicionados paralelamente, sem formar pontes cruzadas.</p>
+            <p>A troponina e a tropomiosina bloqueiam os sítios de ligação na actina, impedindo a ligação com a miosina.</p>
+            <p>O ATP está ligado às cabeças de miosina, mas não há contração neste momento porque não há interação entre actina e miosina.</p>`,
+            
+            // Etapa 1: Estímulo nervoso
+            `<p>O processo de contração muscular se inicia com um estímulo nervoso que chega à junção neuromuscular.</p>
+            <p>Na junção neuromuscular, o neurônio motor libera o neurotransmissor acetilcolina que se liga aos receptores na membrana da fibra muscular.</p>
+            <p>Essa ligação desencadeia um potencial de ação que se propaga pela membrana celular e pelos túbulos T.</p>
+            <p>O potencial de ação alcança o retículo sarcoplasmático, que armazena íons cálcio em seu interior.</p>`,
+            
+            // Etapa 2: Liberação de cálcio
+            `<p>O potencial de ação estimula a abertura dos canais de cálcio no retículo sarcoplasmático.</p>
+            <p>Os íons de cálcio (Ca²⁺) são liberados no sarcoplasma e se difundem para se ligar à troponina C.</p>
+            <p>A ligação do cálcio à troponina C causa uma mudança conformacional no complexo troponina-tropomiosina.</p>
+            <p>Esta mudança move a tropomiosina, expondo os sítios de ligação da actina para as cabeças de miosina.</p>`,
+            
+            // Etapa 3: Formação de pontes cruzadas
+            `<p>Com os sítios de ligação expostos, as cabeças de miosina podem agora se ligar à actina, formando as pontes cruzadas.</p>
+            <p>Antes de formar as pontes cruzadas, a miosina hidrolisa ATP em ADP + Pi, mas o fosfato inorgânico permanece ligado, mantendo a miosina em estado energizado.</p>
+            <p>Quando a cabeça de miosina se liga à actina, o Pi é liberado, causando uma mudança conformacional na cabeça de miosina.</p>
+            <p>Esta mudança conformacional inicia o "power stroke" ou golpe de força, onde a cabeça de miosina se dobra em direção ao centro do sarcômero.</p>`,
+            
+            // Etapa 4: Contração
+            `<p>Durante o "power stroke", as cabeças de miosina puxam os filamentos de actina, fazendo com que eles deslizem sobre os filamentos de miosina.</p>
+            <p>Este movimento de deslizamento resulta no encurtamento do sarcômero e consequente contração da fibra muscular.</p>
+            <p>Após o golpe de força, uma nova molécula de ATP se liga à cabeça de miosina, permitindo que ela se solte da actina.</p>
+            <p>Enquanto o cálcio permanecer elevado no sarcoplasma, este ciclo continuará, mantendo a contração muscular. A remoção do cálcio pelo retículo sarcoplasmático levará ao relaxamento muscular.</p>`
+        ];
+        
+        // Função para renderizar a etapa atual
+        function renderStep(step) {
+            animationStage.innerHTML = stepSVGs[step];
+            stepDescription.textContent = stepDescriptions[step];
+            additionalInfoText.innerHTML = additionalInfos[step];
+            
+            // Atualizar botões de etapa
+            document.querySelectorAll('.step-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.step-btn[data-step="${step}"]`).classList.add('active');
+        }
+        
+        // Inicializar a animação
+        renderStep(currentStep);
+        
+        // Event listener para os botões de etapa
+        stepControls.addEventListener('click', (e) => {
+            if (e.target.classList.contains('step-btn')) {
+                const step = parseInt(e.target.getAttribute('data-step'));
+                currentStep = step;
+                renderStep(step);
+            }
+        });
+    </script>
+</body>
+</html>
