@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Interativo - Sistema Muscular</title>
+    <style>
+        /* Estilos gerais */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Estilos do quiz */
+        .quiz-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .quiz-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e40af;
+        }
+        
+        .quiz-progress {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .quiz-question {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+        
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .quiz-option {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .quiz-option:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .quiz-option.selected {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        
+        .quiz-option.correct {
+            border-color: #10b981;
+            background-color: #d1fae5;
+        }
+        
+        .quiz-option.incorrect {
+            border-color: #ef4444;
+            background-color: #fee2e2;
+        }
+        
+        .option-marker {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid #999;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .selected .option-marker {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+        
+        .correct .option-marker {
+            background-color: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+        
+        .incorrect .option-marker {
+            background-color: #ef4444;
+            border-color: #ef4444;
+            color: white;
+        }
+        
+        .explanation {
+            background-color: #eff6ff;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: none;
+        }
+        
+        .explanation-title {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 8px;
+        }
+        
+        .explanation-text {
+            color: #333;
+        }
+        
+        .quiz-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .btn-back {
+            color: #666;
+            background: none;
+        }
+        
+        .btn-back:hover {
+            color: #333;
+        }
+        
+        .btn-check {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .btn-check:hover {
+            background-color: #2563eb;
+        }
+        
+        .btn-check:disabled {
+            background-color: #e5e7eb;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .btn-next {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .btn-next:hover {
+            background-color: #2563eb;
+        }
+        
+        /* Estilos da tela inicial */
+        .quiz-intro {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .quiz-intro h2 {
+            font-size: 28px;
+            color: #1e40af;
+            margin-bottom: 16px;
+        }
+        
+        .quiz-intro p {
+            color: #666;
+            margin-bottom: 24px;
+        }
+        
+        .quiz-topics {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .quiz-topic {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .quiz-topic:hover {
+            background-color: #eff6ff;
+            border-color: #3b82f6;
+            color: #1e40af;
+        }
+        
+        /* Estilos da tela de resultado */
+        .quiz-result {
+            text-align: center;
+        }
+        
+        .quiz-result h2 {
+            font-size: 28px;
+            color: #1e40af;
+            margin-bottom: 16px;
+        }
+        
+        .score-container {
+            background-color: #eff6ff;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .score {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 8px;
+        }
+        
+        .score-message {
+            color: #666;
+        }
+        
+        .result-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="quiz-container" id="quiz-container">
+            <!-- O conteúdo do quiz será inserido aqui via JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Dados do quiz
+        const quizzes = {
+            'anatomia': [
+                {
+                    question: 'Qual dos seguintes músculos está localizado na região anterior do braço?',
+                    options: ['Tríceps braquial', 'Bíceps braquial', 'Deltoide', 'Trapézio'],
+                    correctAnswer: 1,
+                    explanation: 'O bíceps braquial é um músculo localizado na região anterior do braço, responsável principalmente pela flexão do cotovelo e supinação do antebraço.'
+                },
+                {
+                    question: 'Qual é o maior músculo do corpo humano?',
+                    options: ['Quadríceps', 'Glúteo máximo', 'Peitoral maior', 'Latíssimo do dorso'],
+                    correctAnswer: 1,
+                    explanation: 'O glúteo máximo é o maior músculo do corpo humano, localizado na região posterior do quadril, sendo responsável pela extensão e rotação lateral da coxa.'
+                },
+                {
+                    question: 'Qual músculo é responsável pela respiração forçada?',
+                    options: ['Diafragma', 'Intercostais', 'Reto abdominal', 'Oblíquo externo'],
+                    correctAnswer: 0,
+                    explanation: 'O diafragma é o principal músculo respiratório, sendo essencial para a respiração normal. Durante a respiração forçada, ele se contrai mais intensamente.'
+                },
+                {
+                    question: 'Qual dos seguintes músculos NÃO faz parte do grupo dos músculos da mastigação?',
+                    options: ['Masseter', 'Temporal', 'Pterigoideo lateral', 'Esternocleidomastoideo'],
+                    correctAnswer: 3,
+                    explanation: 'O esternocleidomastoideo não é um músculo da mastigação, mas sim um músculo do pescoço que permite a rotação e flexão da cabeça.'
+                },
+                {
+                    question: 'Qual músculo é conhecido como "músculo do sorriso"?',
+                    options: ['Orbicular da boca', 'Zigomático maior', 'Risório', 'Bucinador'],
+                    correctAnswer: 1,
+                    explanation: 'O zigomático maior é conhecido como o "músculo do sorriso" pois sua contração eleva os cantos da boca, produzindo o sorriso.'
+                }
+            ],
+            'fisiologia': [
+                {
+                    question: 'Qual é a unidade funcional do músculo esquelético?',
+                    options: ['Miócito', 'Sarcômero', 'Fibra muscular', 'Miofibra'],
+                    correctAnswer: 1,
+                    explanation: 'O sarcômero é a unidade funcional básica do músculo esquelético, contendo os filamentos de actina e miosina responsáveis pela contração.'
+                },
+                {
+                    question: 'Quais são as proteínas principais envolvidas na contração muscular?',
+                    options: ['Colágeno e elastina', 'Actina e miosina', 'Hemoglobina e mioglobina', 'Troponina e tropomiosina'],
+                    correctAnswer: 1,
+                    explanation: 'Actina e miosina são as principais proteínas contráteis do músculo, formando os filamentos finos e grossos que deslizam entre si durante a contração.'
+                },
+                {
+                    question: 'O que é necessário para iniciar a contração muscular?',
+                    options: ['Liberação de ATP', 'Liberação de íons potássio', 'Liberação de íons cálcio', 'Liberação de adrenalina'],
+                    correctAnswer: 2,
+                    explanation: 'A liberação de íons cálcio do retículo sarcoplasmático é o evento que inicia a contração muscular, permitindo a interação entre actina e miosina.'
+                },
+                {
+                    question: 'Qual é o tipo de contração muscular em que o músculo encurta?',
+                    options: ['Contração isométrica', 'Contração isotônica concêntrica', 'Contração isotônica excêntrica', 'Contração isocinética'],
+                    correctAnswer: 1,
+                    explanation: 'Na contração isotônica concêntrica, o músculo gera força suficiente para superar a resistência, resultando no encurtamento do músculo.'
+                },
+                {
+                    question: 'O que é a fadiga muscular?',
+                    options: ['Incapacidade permanente do músculo de se contrair', 'Diminuição temporária da força muscular devido ao uso excessivo', 'Lesão das fibras musculares', 'Acúmulo de tecido adiposo no músculo'],
+                    correctAnswer: 1,
+                    explanation: 'A fadiga muscular é uma diminuição temporária da capacidade de gerar força, geralmente causada pelo uso excessivo e acúmulo de metabólitos como o ácido lático.'
+                }
+            ],
+            'patologias': [
+                {
+                    question: 'Qual das seguintes condições é caracterizada por fraqueza muscular progressiva devido à degeneração dos neurônios motores?',
+                    options: ['Distrofia muscular', 'Esclerose lateral amiotrófica (ELA)', 'Miastenia gravis', 'Polimiosite'],
+                    correctAnswer: 1,
+                    explanation: 'A Esclerose Lateral Amiotrófica (ELA) é uma doença neurodegenerativa que afeta os neurônios motores, causando fraqueza muscular progressiva.'
+                },
+                {
+                    question: 'Qual condição é caracterizada por contrações musculares dolorosas e involuntárias?',
+                    options: ['Cãibra muscular', 'Tendinite', 'Bursite', 'Artrite'],
+                    correctAnswer: 0,
+                    explanation: 'As cãibras musculares são contrações involuntárias, súbitas e dolorosas de um músculo ou grupo muscular, frequentemente causadas por fadiga ou desequilíbrio eletrolítico.'
+                },
+                {
+                    question: 'Qual doença é caracterizada pela inflamação crônica dos músculos, causando fraqueza?',
+                    options: ['Fibromialgia', 'Polimiosite', 'Tendinite', 'Síndrome do túnel do carpo'],
+                    correctAnswer: 1,
+                    explanation: 'A polimiosite é uma doença inflamatória que afeta os músculos, causando fraqueza progressiva, especialmente nos músculos proximais.'
+                },
+                {
+                    question: 'Qual condição é caracterizada por dor muscular generalizada e pontos sensíveis específicos?',
+                    options: ['Artrite reumatoide', 'Osteoartrite', 'Fibromialgia', 'Gota'],
+                    correctAnswer: 2,
+                    explanation: 'A fibromialgia é caracterizada por dor muscular generalizada, fadiga e pontos sensíveis específicos, afetando principalmente mulheres.'
+                },
+                {
+                    question: 'Qual doença genética causa degeneração progressiva das fibras musculares?',
+                    options: ['Esclerose múltipla', 'Doença de Parkinson', 'Distrofia muscular', 'Síndrome de Guillain-Barré'],
+                    correctAnswer: 2,
+                    explanation: 'A distrofia muscular é um grupo de doenças genéticas caracterizadas pela degeneração progressiva das fibras musculares, levando à fraqueza e atrofia muscular.'
+                }
+            ]
+        };
+
+        // Variáveis de estado
+        let currentQuiz = null;
+        let currentQuestion = 0;
+        let selectedAnswer = null;
+        let showResult = false;
+        let score = 0;
+        let quizCompleted = false;
+
+        // Elementos DOM
+        const quizContainer = document.getElementById('quiz-container');
+
+        // Função para renderizar a tela inicial
+        function renderIntro() {
+            quizContainer.innerHTML = `
+                <div class="quiz-intro">
+                    <h2>Quiz: Sistema Muscular</h2>
+                    <p>Escolha um tema para testar seus conhecimentos:</p>
+                    <div class="quiz-topics">
+                        <button class="quiz-topic" onclick="startQuiz('anatomia')">Anatomia Muscular</button>
+                        <button class="quiz-topic" onclick="startQuiz('fisiologia')">Fisiologia da Contração</button>
+                        <button class="quiz-topic" onclick="startQuiz('patologias')">Patologias Musculares</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Função para iniciar o quiz
+        function startQuiz(quizType) {
+            currentQuiz = quizType;
+            currentQuestion = 0;
+            selectedAnswer = null;
+            showResult = false;
+            score = 0;
+            quizCompleted = false;
+            renderQuestion();
+        }
+
+        // Função para renderizar a questão atual
+        function renderQuestion() {
+            const currentQuizData = quizzes[currentQuiz][currentQuestion];
+            
+            let optionsHTML = '';
+            currentQuizData.options.forEach((option, index) => {
+                const isSelected = selectedAnswer === index;
+                const isCorrect = showResult && index === currentQuizData.correctAnswer;
+                const isIncorrect = showResult && isSelected && index !== currentQuizData.correctAnswer;
+                
+                let optionClass = 'quiz-option';
+                if (isSelected) optionClass += ' selected';
+                if (isCorrect) optionClass += ' correct';
+                if (isIncorrect) optionClass += ' incorrect';
+                
+                optionsHTML += `
+                    <div class="${optionClass}" onclick="selectAnswer(${index})">
+                        <div class="option-marker">
+                            ${isSelected || isCorrect ? 
+                                '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' : 
+                                isIncorrect ? 
+                                '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' : 
+                                ''}
+                        </div>
+                        <span>${option}</span>
+                    </div>
+                `;
+            });
+            
+            let quizTitle = '';
+            if (currentQuiz === 'anatomia') quizTitle = 'Anatomia Muscular';
+            else if (currentQuiz === 'fisiologia') quizTitle = 'Fisiologia da Contração';
+            else if (currentQuiz === 'patologias') quizTitle = 'Patologias Musculares';
+            
+            quizContainer.innerHTML = `
+                <div class="quiz-header">
+                    <h2 class="quiz-title">${quizTitle}</h2>
+                    <span class="quiz-progress">Questão ${currentQuestion + 1} de ${quizzes[currentQuiz].length}</span>
+                </div>
+                
+                <div class="quiz-question">${currentQuizData.question}</div>
+                
+                <div class="quiz-options">
+                    ${optionsHTML}
+                </div>
+                
+                <div class="explanation" style="${showResult ? 'display: block;' : ''}">
+                    <p class="explanation-title">Explicação:</p>
+                    <p class="explanation-text">${currentQuizData.explanation}</p>
+                </div>
+                
+                <div class="quiz-actions">
+                    <button class="btn btn-back" onclick="resetQuiz()">Voltar</button>
+                    
+                    ${!showResult ? 
+                        `<button class="btn btn-check" onclick="checkAnswer()" ${selectedAnswer === null ? 'disabled' : ''}>Verificar Resposta</button>` : 
+                        `<button class="btn btn-next" onclick="nextQuestion()">${currentQuestion < quizzes[currentQuiz].length - 1 ? 'Próxima Questão' : 'Ver Resultado'}</button>`
+                    }
+                </div>
+            `;
+        }
+
+        // Função para selecionar uma resposta
+        function selectAnswer(answerIndex) {
+            if (showResult) return;
+            selectedAnswer = answerIndex;
+            renderQuestion();
+        }
+
+        // Função para verificar a resposta
+        function checkAnswer() {
+            showResult = true;
+            renderQuestion();
+        }
+
+        // Função para ir para a próxima questão
+        function nextQuestion() {
+            if (selectedAnswer === quizzes[currentQuiz][currentQuestion].correctAnswer) {
+                score++;
+            }
+            
+            showResult = false;
+            selectedAnswer = null;
+            
+            if (currentQuestion < quizzes[currentQuiz].length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                quizCompleted = true;
+                renderResult();
+            }
+        }
+
+        // Função para renderizar o resultado
+        function renderResult() {
+            const totalQuestions = quizzes[currentQuiz].length;
+            let message = '';
+            
+            if (score === totalQuestions) {
+                message = 'Parabéns! Você acertou todas as questões!';
+            } else if (score >= totalQuestions / 2) {
+                message = 'Bom trabalho! Continue estudando para melhorar ainda mais.';
+            } else {
+                message = 'Continue estudando para melhorar sua compreensão do sistema muscular.';
+            }
+            
+            let quizTitle = '';
+            if (currentQuiz === 'anatomia') quizTitle = 'Anatomia Muscular';
+            else if (currentQuiz === 'fisiologia') quizTitle = 'Fisiologia da Contração';
+            else if (currentQuiz === 'patologias') quizTitle = 'Patologias Musculares';
+            
+            quizContainer.innerHTML = `
+                <div class="quiz-result">
+                    <h2>Quiz Concluído!</h2>
+                    
+                    <div class="score-container">
+                        <p class="score">Sua pontuação: ${score} de ${totalQuestions}</p>
+                        <p class="score-message">${message}</p>
+                    </div>
+                    
+                    <div class="result-actions">
+                        <button class="btn btn-check" onclick="startQuiz('${currentQuiz}')">Tentar Novamente</button>
+                        <button class="btn btn-back" onclick="resetQuiz()">Escolher Outro Quiz</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Função para resetar o quiz
+        function resetQuiz() {
+            currentQuiz = null;
+            currentQuestion = 0;
+            selectedAnswer = null;
+            showResult = false;
+            score = 0;
+            quizCompleted = false;
+            renderIntro();
+        }
+
+        // Inicializar o quiz
+        renderIntro();
+    </script>
+</body>
+</html>
